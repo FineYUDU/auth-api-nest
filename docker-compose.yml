@@ -4,7 +4,7 @@ services:
   myLoginDB:
     image: postgres:14.3
     restart: always
-    container_name: logindb
+    container_name: authdb
     ports:
       - "${DB_PORT}:5432"
     environment:
