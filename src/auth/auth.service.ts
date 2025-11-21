@@ -9,7 +9,7 @@ import { User } from './entities/user.entity';
 
 import { CreateUserDto, LoginUserDto } from './dto';
 
-import { JwTPayload, ResponseRegisterUser } from './interfaces';
+import { JwTPayload, ResponseRegisterUser, ResponseLogin } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +33,7 @@ export class AuthService {
       });
 
       await this.userRepository.save(user);
-      const createResponse = await {
+      const createResponse:ResponseRegisterUser = await {
         email:user.email,
         firstName:user.firstName,
         lastName:user.lastName,
@@ -47,13 +47,19 @@ export class AuthService {
   };
 
 
-  public async login(loginUserDto: LoginUserDto) {
+  public async login(loginUserDto: LoginUserDto):Promise<ResponseLogin | undefined> {
 
     const { email, password } = loginUserDto;
 
     const user = await this.userRepository.findOne({
       where:{email},
-      select: { email:true, password:true, id:true }
+      select: {
+        email:true,
+        password:true,
+        id:true,
+        firstName:true,
+        lastName:true
+      }
     });
 
     if(!user) 
@@ -61,10 +67,15 @@ export class AuthService {
     if( !bcrypt.compareSync( password, user.password ) ) 
       throw new UnauthorizedException('Password or email are incorrect');
 
-    return {
-      ...user,
-      token:this.getJwtToken({id:user.id}),
-    }
+    const responseLogin:ResponseLogin = {
+      id:user.id,
+      email,
+      firstName:user.firstName,
+      lastName:user.lastName,
+      token:this.getJwtToken({id:user.id})
+    } 
+
+    return  responseLogin;
 
   };
 
