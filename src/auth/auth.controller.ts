@@ -1,10 +1,14 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Controller, Post, Body, Get, UseGuards, Param } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 
 import { CreateUserDto, LoginUserDto } from './dto';
 
 import { ResponseRegisterUser, ResponseLogin } from './interfaces';
+import { ValidRoles } from './interfaces/valid-roles.interface';
+import { Auth, RoleProtected } from './decorators';
+import { UserRoleGuard } from './guards/user-role.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -24,7 +28,16 @@ export class AuthController {
   }
 
   @Get('users')
+  @Auth(ValidRoles.superUser)
   getUsers() {
-    return 'This method return all the users'
+    return this.authService.getAllUsers();
+  }
+
+  @Get('users/:id')
+  @Auth(ValidRoles.superUser)
+  getUserById(
+    @Param('id') id:string
+  ) {
+    return this.authService.getUserById(id);
   }
 }

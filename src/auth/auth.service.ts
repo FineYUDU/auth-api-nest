@@ -33,6 +33,7 @@ export class AuthService {
       });
 
       await this.userRepository.save(user);
+      
       const createResponse:ResponseRegisterUser = await {
         email:user.email,
         firstName:user.firstName,
@@ -79,11 +80,21 @@ export class AuthService {
 
   };
 
+  public async getAllUsers() {
+    const users = await this.userRepository.find();
+    return users;
+  }
+
+  public async getUserById(id:string) {
+    const users = await this.userRepository.findOneBy({id});
+    return users;
+  }
+
   private getJwtToken(payload:JwTPayload):string {
 
     const token = this.jwtService.sign( payload );
     return token;
-  }
+  };
 
 
   private handleDbError(error:any):void {
