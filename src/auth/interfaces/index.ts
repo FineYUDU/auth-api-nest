@@ -1,0 +1,1 @@
+export type { ResponseRegisterUser } from './user-register.interface';
