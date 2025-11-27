@@ -35,6 +35,7 @@ export class AuthService {
       await this.userRepository.save(user);
       
       const createResponse:ResponseRegisterUser = await {
+        id:user.id,
         email:user.email,
         firstName:user.firstName,
         lastName:user.lastName,
