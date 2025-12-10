@@ -69,8 +69,10 @@ export class AuthService {
     if( !bcrypt.compareSync( password, user.password ) ) 
       throw new UnauthorizedException('Password or email are incorrect');
 
+    const {password:_password, ...userSafe} = user;
+
     const responseLogin:ResponseLogin = {
-      user,
+      user:userSafe,
       token:this.getJwtToken({id:user.id})
     } 
     

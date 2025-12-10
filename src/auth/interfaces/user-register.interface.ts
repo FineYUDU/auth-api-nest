@@ -7,7 +7,15 @@ export interface ResponseRegisterUser {
     lastName:string;
 }
 
+export interface UserResponse {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    isActive: boolean;
+    roles: string[];
+}
 export interface ResponseLogin {
-    user:    User;
-    token:    string;
+    user:   UserResponse;
+    token:  string;
 }
