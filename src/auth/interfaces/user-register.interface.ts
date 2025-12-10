@@ -1,3 +1,5 @@
+import { User } from "../entities/user.entity";
+
 export interface ResponseRegisterUser {
     id:string;
     email:string;
@@ -6,9 +8,6 @@ export interface ResponseRegisterUser {
 }
 
 export interface ResponseLogin {
-    id:       string;
-    firstName:string;
-    lastName:string;
-    email:    string;
+    user:    User;
     token:    string;
 }

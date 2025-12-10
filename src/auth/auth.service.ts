@@ -70,13 +70,10 @@ export class AuthService {
       throw new UnauthorizedException('Password or email are incorrect');
 
     const responseLogin:ResponseLogin = {
-      id:user.id,
-      email,
-      firstName:user.firstName,
-      lastName:user.lastName,
+      user,
       token:this.getJwtToken({id:user.id})
     } 
-
+    
     return  responseLogin;
 
   };
