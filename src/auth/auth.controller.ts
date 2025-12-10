@@ -29,7 +29,7 @@ export class AuthController {
     status:401,
     description:'Unauthorized'
   })
-  @Auth(ValidRoles.superUser)
+  // @Auth(ValidRoles.admin)
   create(
     @Body() createUserDto: CreateUserDto
   ):Promise<ResponseRegisterUser | undefined> {
