@@ -9,10 +9,12 @@ import { ResponseRegisterUser, ResponseLogin } from './interfaces';
 import { ValidRoles } from './interfaces/valid-roles.interface';
 import { Auth } from './decorators';
 import { User } from './entities/user.entity';
+import { GetUser } from './decorators/get-user.decorator';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
+
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
@@ -29,6 +31,7 @@ export class AuthController {
     status:401,
     description:'Unauthorized'
   })
+
   // @Auth(ValidRoles.admin)
   create(
     @Body() createUserDto: CreateUserDto
@@ -56,6 +59,14 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
+  @Get('check-status')
+  @Auth()
+  checkAuthStatus(
+    @GetUser() user: User
+  ) {
+    return this.authService.checkAuthStatus( user );
+  }
+
   @Get('users')
   @Auth(ValidRoles.superUser)
   getUsers() {
@@ -69,4 +80,4 @@ export class AuthController {
   ) {
     return this.authService.getUserById(id);
   }
-}
+};

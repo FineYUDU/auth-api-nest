@@ -12,7 +12,6 @@ export interface UserResponse {
     email: string;
     firstName: string;
     lastName: string;
-    isActive: boolean;
     roles: string[];
 }
 export interface ResponseLogin {

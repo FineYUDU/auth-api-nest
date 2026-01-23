@@ -60,25 +60,48 @@ export class AuthService {
         password:true,
         id:true,
         firstName:true,
-        lastName:true
+        lastName:true,
+        roles:true,
       }
     });
-
     if(!user) 
       throw new UnauthorizedException('Password or email are incorrect');
-    if( !bcrypt.compareSync( password, user.password ) ) 
+    if(!bcrypt.compareSync( password, user.password)) 
       throw new UnauthorizedException('Password or email are incorrect');
 
     const {password:_password, ...userSafe} = user;
 
     const responseLogin:ResponseLogin = {
-      user:userSafe,
+      user:{
+        id:userSafe.id,
+        email:userSafe.email,
+        firstName:userSafe.firstName,
+        lastName:userSafe.lastName,
+        roles:userSafe.roles,
+      },
       token:this.getJwtToken({id:user.id})
     } 
     
     return  responseLogin;
 
   };
+
+  async checkAuthStatus( { id, email, firstName, lastName, roles }: User ){
+
+    const user = {
+      id,
+      email,
+      firstName,
+      lastName,
+      roles,
+    }
+
+    return { 
+      user,
+      token: this.getJwtToken({ id:id })
+    };
+
+  }
 
   public async getAllUsers() {
     const users = await this.userRepository.find();
