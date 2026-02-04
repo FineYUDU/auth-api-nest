@@ -3,9 +3,14 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from './auth/auth.module';
+import { FilesModule } from './files/files.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    AuthModule,
+    FilesModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type:'postgres',
@@ -18,7 +23,11 @@ import { AuthModule } from './auth/auth.module';
       // TODO: Remove synchronize in production 
       synchronize:true,
     }),
-    AuthModule
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..','public')
+    }),
+    AuthModule,
+    FilesModule
   ],
   controllers: [],
   providers: [],

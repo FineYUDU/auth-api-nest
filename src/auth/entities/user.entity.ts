@@ -1,5 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+    BeforeInsert,
+    BeforeUpdate,
+    Column,Entity,
+    PrimaryGeneratedColumn
+} from "typeorm";
 
 @Entity('users')
 export class User {
@@ -41,12 +46,26 @@ export class User {
     
     @Column({type:'text', array:true, default:['user']})
     roles:string[];
-    
+
+    @Column({type:'text',nullable:true})
+    profileImageUrl?:string;
+
+    @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt: Date;
+
+    @Column({ type: 'uuid',nullable:true })
+    createdById?:string;
+
     @BeforeInsert() 
     checkFieldsBeforeInsert() {
         this.email = this.email.toLocaleLowerCase().trim();
         this.firstName = this.firstName.toLocaleLowerCase().trim();
         this.lastName = this.lastName.toLocaleLowerCase().trim();
+
+        if (!this.profileImageUrl) {
+            const host = process.env.HOST_API ?? 'http://localhost:3000';
+            this.profileImageUrl = `${host}/files/profile-img/profile-default.webp`;
+        }
     }
 
     @BeforeUpdate() 

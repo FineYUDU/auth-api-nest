@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 
@@ -20,7 +20,10 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {} 
 
-  public async create(createUserDto: CreateUserDto):Promise<ResponseRegisterUser | undefined> {
+  public async create(
+    createUserDto: CreateUserDto,
+    createdById?:string,
+  ):Promise<ResponseRegisterUser | undefined> {
 
     try {
       const { password, email, firstName, lastName } = createUserDto;
@@ -29,6 +32,8 @@ export class AuthService {
         email,
         firstName,
         lastName,
+        createdAt: new Date(),
+        createdById,
         password:bcrypt.hashSync(password, 10)
       });
 
@@ -62,6 +67,7 @@ export class AuthService {
         firstName:true,
         lastName:true,
         roles:true,
+        profileImageUrl:true,
       }
     });
     if(!user) 
@@ -78,6 +84,7 @@ export class AuthService {
         firstName:userSafe.firstName,
         lastName:userSafe.lastName,
         roles:userSafe.roles,
+        profileImageUrl:userSafe.profileImageUrl,
       },
       token:this.getJwtToken({id:user.id})
     } 
@@ -86,7 +93,7 @@ export class AuthService {
 
   };
 
-  async checkAuthStatus( { id, email, firstName, lastName, roles }: User ){
+  async checkAuthStatus( { id, email, firstName, lastName, roles, profileImageUrl }: User ){
 
     const user = {
       id,
@@ -94,6 +101,7 @@ export class AuthService {
       firstName,
       lastName,
       roles,
+      profileImageUrl,
     }
 
     return { 
@@ -101,17 +109,56 @@ export class AuthService {
       token: this.getJwtToken({ id:id })
     };
 
-  }
+  };
 
-  public async getAllUsers() {
+  public async getAllUsers():Promise<User[] | undefined>  {
+    
     const users = await this.userRepository.find();
-    return users;
-  }
 
-  public async getUserById(id:string) {
-    const users = await this.userRepository.findOneBy({id});
     return users;
-  }
+
+  };
+
+  public async getUserById(id:string):Promise<User | null> {
+
+    const user = await this.userRepository.findOneBy({id});
+
+    if(!user) throw new BadRequestException(`${id} user not found`)
+
+    return user;
+  };
+
+  public async setProfileImage(userId:string, profileImageUrl:string) {
+    if (!userId) throw new BadRequestException('userId is required');
+    if(!profileImageUrl) throw new BadRequestException('image is required');
+    
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: {
+        id:true,
+        email:true,
+        firstName:true,
+        lastName:true,
+        roles:true,
+        profileImageUrl:true 
+      },
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    user.profileImageUrl = profileImageUrl;
+    await this.userRepository.save(user);
+
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      roles: user.roles,
+      profileImageUrl: user.profileImageUrl,
+    };
+
+  };
 
   private getJwtToken(payload:JwTPayload):string {
 

@@ -13,6 +13,7 @@ export interface UserResponse {
     firstName: string;
     lastName: string;
     roles: string[];
+    profileImageUrl?: string;
 }
 export interface ResponseLogin {
     user:   UserResponse;
